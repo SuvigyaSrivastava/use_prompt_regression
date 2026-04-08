@@ -1,0 +1,23 @@
+name: use_prompt_regression
+version: "1.0.0"
+description: >
+  An RL environment where an agent learns to write and fix prompts
+  so that a target LLM passes a suite of behavioral test cases.
+  Models the real-world task of prompt regression testing used by
+  ML teams at AI labs.
+author: FlopCoders
+tasks:
+  - id: task_json_formatter
+    difficulty: easy
+    description: Fix a broken prompt so the LLM outputs valid JSON
+  - id: task_sentiment_classifier
+    difficulty: medium
+    description: Fix a prompt to correctly classify 5 movie reviews
+  - id: task_adversarial_follower
+    difficulty: hard
+    description: Write a prompt that resists 6 adversarial inputs
+tags:
+  - prompt-engineering
+  - llm-evaluation
+  - regression-testing
+  - real-world
