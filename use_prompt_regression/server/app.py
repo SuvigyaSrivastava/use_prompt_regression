@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from fastapi import FastAPI
 from models import PromptAction, PromptObservation, PromptState
 from environment import PromptRegressionEnv
+import uvicorn
 
 app = FastAPI(title="use_prompt_regression")
 env = PromptRegressionEnv()
@@ -37,3 +38,9 @@ async def step(action: PromptAction):
 async def state():
     s = await env.state()
     return s.dict()
+
+def main():
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+if __name__ == "__main__":
+    main()
