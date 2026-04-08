@@ -13,6 +13,7 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "https://router.huggingface.co/v1"
 MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 HF_TOKEN = os.environ.get("HF_TOKEN", "")
 IMAGE_NAME = os.environ.get("IMAGE_NAME", "use_prompt_regression")
+LOCAL_IMAGE_NAME = os.environ.get("LOCAL_IMAGE_NAME")
 MAX_STEPS = 6
 SUCCESS_SCORE_THRESHOLD = 0.8
 TASKS = ["task_json_formatter", "task_sentiment_classifier", "task_adversarial_follower"]
@@ -38,7 +39,7 @@ Keep the prompt under 1000 characters."""
 Original broken prompt: {obs.broken_prompt}
 Your last prompt: {obs.current_prompt}
 LLM output: {obs.llm_output[:300]}
-Failed assertions: {json.dumps([{'id': a.assertion_id, 'desc': a.description} for a in failed], indent=2)}
+Failed assertions: {json.dumps([{{'id': a.assertion_id, 'desc': a.description}} for a in failed], indent=2)}
 Steps taken: {obs.step_number}
 Previous prompts tried: {history[-3:] if history else 'none'}
 
