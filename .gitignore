@@ -1,10 +1,7 @@
-venv/
 __pycache__/
 *.pyc
 .env
 *.egg-info/
-dist/
-build/
-use_prompt_regression/server/test_executor.py
-use_prompt_regression/server/test_graders.py
-use_prompt_regression/server/use_prompt_regression_environment.py
+server/test_executor.py
+server/test_graders.py
+server/use_prompt_regression_environment.py

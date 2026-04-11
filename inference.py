@@ -7,13 +7,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'use_prompt_regression', 'server'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'server'))
 
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+
+if HF_TOKEN is None:
+    raise ValueError("HF_TOKEN environment variable is required")
 
 MAX_STEPS = 6
 SUCCESS_SCORE_THRESHOLD = 0.8
@@ -30,12 +33,13 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
     print(f"[STEP] step={step} action={action} reward={reward:.2f} done={done_val} error={error_val}", flush=True)
 
 
-def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
+    print(f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}", flush=True)
 
 
 def get_agent_prompt(client, obs, history):
+    import json
     system = """You are an expert prompt engineer.
 Your job is to rewrite a broken prompt so that an LLM produces outputs passing all test assertions.
 Study failed assertions carefully. Write a precise, instruction-following system prompt.
@@ -43,7 +47,6 @@ Output your reasoning first, then wrap your final prompt in <prompt> and </promp
 Keep the prompt under 1000 characters."""
 
     failed = [a for a in obs.assertion_results if not a.passed]
-    import json
     user = f"""Task: {obs.task_description}
 Original broken prompt: {obs.broken_prompt}
 Your last prompt: {obs.current_prompt}
@@ -114,10 +117,10 @@ async def run_task(task_id: str) -> float:
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     except Exception as e:
-        log_step(step=steps_taken, action="", reward=0.0, done=True, error=str(e))
+        log_step(step=steps_taken, action="error", reward=0.0, done=True, error=str(e))
 
     finally:
-        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+        log_end(success=success, steps=steps_taken, rewards=rewards)
 
     return score
 
@@ -127,7 +130,6 @@ async def main():
     for task_id in TASKS:
         score = await run_task(task_id)
         scores.append(score)
-    print(f"[SUMMARY] mean_score={round(sum(scores)/len(scores), 4)}", flush=True)
 
 
 if __name__ == "__main__":
